@@ -108,7 +108,7 @@ public class SolveTests
     public async Task SolveRoger(string name, int[] input)
     {
         var sudoku = new Sudoku(input);
-        var solver = new SudokuSolverRoger();
+        var solver = new SudokuSolverRB();
         var solved = solver.SolveSudoku(sudoku);
         // Check clone worked.
         await Assert.That(sudoku).IsNotEqualTo(solved);

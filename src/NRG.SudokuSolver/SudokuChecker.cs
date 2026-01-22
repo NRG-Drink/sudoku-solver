@@ -4,17 +4,48 @@ public static class SudokuChecker
 {
     public static bool IsCorrect(Sudoku sudoku)
     {
-        var slicer = new SudokuSlicerInt(sudoku);
+        if (sudoku.Values.Any(e => e.Number is 0))
+        {
+            Console.WriteLine($"{nameof(SudokuChecker)}: There are empty fields (0 values). Check aborted.");
+            return false;
+        }
+
+        var slicer = new SudokuSlicer(sudoku);
         for (var i = 0; i < 9; i++)
         {
-            var b = slicer.GetBlock(i);
-            var h = slicer.GetHorizontalLine(i);
-            var v = slicer.GetVerticalLine(i);
+            var b = slicer.GetBlock(i)
+                .Where(e => e.Number > 0)
+                .DistinctBy(e => e.Number)
+                .Sum(e => e.Number);
+            var h = slicer.GetHorizontalLine(i)
+                .Where(e => e.Number > 0)
+                .DistinctBy(e => e.Number)
+                .Sum(e => e.Number);
+            var v = slicer.GetVerticalLine(i)
+                .Where(e => e.Number > 0)
+                .DistinctBy(e => e.Number)
+                .Sum(e => e.Number);
 
-            var checksum = b.Distinct().Count() + h.Distinct().Count() + v.Distinct().Count();
-            if (checksum != 27)
+            var failed = new List<string>();
+
+            if (b != 45)
             {
-                System.Console.WriteLine($"Sudoku Check Failed On {i}");
+                failed.Add("block");
+            }
+
+            if (h != 45)
+            {
+                failed.Add("row");
+            }
+
+            if (v != 45)
+            {
+                failed.Add("column");
+            }
+
+            if (failed.Count > 0)
+            {
+                Console.WriteLine($"{nameof(SudokuChecker)}: Check failed at index {i} for {string.Join(", ", failed)}. Check Aborted.");
                 return false;
             }
         }

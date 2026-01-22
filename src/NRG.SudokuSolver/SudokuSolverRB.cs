@@ -1,10 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace NRG.SudokuSolver;
 
-namespace NRG.SudokuSolver;
-
-public class SudokuSolverRoger
+public class SudokuSolverRB
 {
-    //private SudokuSlicerInt _slicer = null!;
     private readonly SudokuHelper _helper = new();
 
     public int[] SolveSudoku(int[] sudoku)
@@ -18,7 +15,6 @@ public class SudokuSolverRoger
         var isSuccesful = false;
         if (TrySolveSudoku(input, out var restult, out var step))
         {
-            //Console.WriteLine($"Sudoku Finished In {step} Steps!");
             isSuccesful = true;
         }
         else
@@ -30,8 +26,6 @@ public class SudokuSolverRoger
                 step = branchSteps;
                 isSuccesful = true;
             }
-
-            //Console.WriteLine($"Failed to solve the Sudoku completely :( (tried {step} steps)");
         }
 
         if (isSuccesful)
@@ -48,14 +42,13 @@ public class SudokuSolverRoger
 
     private bool TryBranches(Sudoku restult, int inputSteps, out Sudoku tryResult, out int outputSteps, string ident = "")
     {
-        //var ident = new string([.. Enumerable.Repeat('_', recursionCount)]);
         ident += "  ";
         tryResult = restult;
         outputSteps = inputSteps;
         var minPoss = restult.Values.Where(e => e.Possibles.Count != 0).MinBy(e => e.Possibles.Count);
         if (minPoss is null)
         {
-            Console.WriteLine($"{ident}Branch run out of possibilities.");
+            Console.WriteLine($"{ident}└─Branch run out of possibilities.");
             return false;
         }
 
@@ -64,18 +57,18 @@ public class SudokuSolverRoger
         var index = restult.Values.IndexOf(poss);
         foreach (var tryNumber in poss.Possibles.Shuffle())
         {
-            Console.WriteLine($"{ident}Open branch for index {index} and number {tryNumber}  [{string.Join(", ", poss.Possibles)}]");
+            Console.WriteLine($"{ident}├─Open branch for index {index} and number {tryNumber}  [{string.Join(", ", poss.Possibles)}]");
             var clone = restult.Clone();
             clone.Values[index].Number = tryNumber;
             if (TrySolveSudoku(clone, out tryResult, out var tryStep))
             {
                 outputSteps += tryStep;
-                Console.WriteLine($"{ident}Branch was successful after {tryStep} steps. (total: {outputSteps} steps)");
+                Console.WriteLine($"{ident}└─Branch was successful after {tryStep} steps. (total: {outputSteps} steps)");
                 return true;
             }
             else
             {
-                Console.WriteLine($"{ident}Branch failed after {tryStep} steps. (total: {outputSteps + tryStep} steps)");
+                Console.WriteLine($"{ident}└─Branch failed after {tryStep} steps. (total: {outputSteps + tryStep} steps)");
                 if (TryBranches(tryResult, outputSteps + tryStep, out var tryClone, out var tryOutputSteps, ident))
                 {
                     tryResult = tryClone;
